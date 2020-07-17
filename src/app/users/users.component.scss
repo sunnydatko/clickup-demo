@@ -1,0 +1,22 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+  // background-color: rgba(0, 0, 0, 0.04);
+}
+
+table {
+  width: 100%;
+}
+
+mat-cell,
+mat-footer-cell,
+mat-header-cell {
+  width: 200px;
+  flex: none;
+}
+
+mat-header-row {
+  display: inline-flex;
+}

@@ -1,0 +1,23 @@
+<mat-form-field>
+  <input
+    matInput
+    (keyup)="applyFilter($event)"
+    placeholder="Search"
+    #input
+    floatLabel="always"
+  />
+</mat-form-field>
+
+<mat-table [dataSource]="dataSource" matSort>
+  <ng-container
+    *ngFor="let column of columns; let i = index"
+    [matColumnDef]="column.field"
+  >
+    <mat-header-cell *matHeaderCellDef mat-sort-header>
+      {{ column.field }}
+    </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{ row[column.field] }} </mat-cell>
+  </ng-container>
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+</mat-table>
