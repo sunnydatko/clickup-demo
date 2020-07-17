@@ -123,6 +123,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "clickup-demo"
+    }
+  },
+  "defaultProject": "clickup-demo",
+  "cli": {
+    "analytics": false
+  }
 }

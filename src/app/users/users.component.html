@@ -8,13 +8,35 @@
   />
 </mat-form-field>
 
-<mat-table [dataSource]="dataSource" matSort>
+<mat-table
+  [dataSource]="dataSource"
+  cdkDropListGroup
+  matSort
+  (matSortChange)="saveSortData($event)"
+>
   <ng-container
     *ngFor="let column of columns; let i = index"
     [matColumnDef]="column.field"
   >
-    <mat-header-cell *matHeaderCellDef mat-sort-header>
-      {{ column.field }}
+    <mat-header-cell
+      *matHeaderCellDef
+      mat-sort-header
+      cdkDropList
+      cdkDropListLockAxis="x"
+      cdkDropListOrientation="horizontal"
+      (cdkDropListDropped)="dropListDropped($event, i)"
+      [cdkDropListData]="columns"
+      cdkDragHandle
+      (mousedown)="onResizeColumn($event, i)"
+    >
+      <div
+        cdkDrag
+        [cdkDragData]="{ name: column.field, columnIndex: i }"
+        (cdkDragStarted)="dragStarted($event, i)"
+        fxFlex
+      >
+        {{ column.field }}
+      </div>
     </mat-header-cell>
     <mat-cell *matCellDef="let row"> {{ row[column.field] }} </mat-cell>
   </ng-container>

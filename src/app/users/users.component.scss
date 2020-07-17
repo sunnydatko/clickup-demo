@@ -3,11 +3,14 @@
 .mat-form-field {
   font-size: 14px;
   width: 100%;
-  // background-color: rgba(0, 0, 0, 0.04);
 }
 
 table {
   width: 100%;
+}
+
+mat-header-cell {
+  cursor: col-resize;
 }
 
 mat-cell,
