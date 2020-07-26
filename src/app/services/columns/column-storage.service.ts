@@ -3,11 +3,11 @@ import { Column } from '../../interfaces/column.interface';
 
 const storageName = 'columns';
 
-const defaultColumns = [
-  { field: 'name', width: 200 },
-  { field: 'title', width: 150 },
-  { field: 'city', width: 150 },
-  { field: 'state', width: 50 },
+const defaultColumns: Column[] = [
+  { field: 'name', width: 200, index: 0 },
+  { field: 'title', width: 150, index: 1 },
+  { field: 'city', width: 150, index: 2 },
+  { field: 'state', width: 50, index: 3 },
 ];
 
 @Injectable()

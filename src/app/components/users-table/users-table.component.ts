@@ -2,10 +2,14 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   HostListener,
-  OnDestroy,
+  Input,
+  OnChanges,
   OnInit,
+  Output,
   Renderer2,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -15,30 +19,27 @@ import {
 } from '@angular/cdk/drag-drop';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
 
-import { Column } from '../interfaces/column.interface';
-import { SortData } from '../interfaces/sort.interface';
-import { User } from '../interfaces/user.interface';
-import { ColumnService } from '../services/columns/column.service';
-import { SortService } from '../services/sort/sort.service';
-import { UsersService } from '../services/users/users.service';
+import { Column } from '../../interfaces/column.interface';
+import { SortData } from '../../interfaces/sort.interface';
+import { User } from '../../interfaces/user.interface';
 
 @Component({
-  selector: 'app-users',
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss'],
+  selector: 'app-users-table',
+  templateUrl: './users-table.component.html',
+  styleUrls: ['./users-table.component.scss'],
 })
-export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
-  users: User[];
-  destroy$: Subject<boolean> = new Subject<boolean>();
+export class UsersTableComponent implements OnInit, AfterViewInit, OnChanges {
+  @Input() users: User[];
+  @Input() columns: Column[];
+  @Input() sortData: SortData[] = [{ active: null, direction: null }];
+
+  @Output() sortChange = new EventEmitter();
+  @Output() columnChange = new EventEmitter();
 
   //table data
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { read: ElementRef }) private matTableRef: ElementRef;
-  columns: Column[];
-  sortData: SortData = { active: null, direction: null };
   displayedColumns: string[] = [];
   dataSource = new MatTableDataSource(this.users);
 
@@ -54,15 +55,9 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
   resizableMousemove: () => void;
   resizableMouseup: () => void;
 
-  constructor(
-    private renderer: Renderer2,
-    private columnService: ColumnService,
-    private sortService: SortService,
-    private usersService: UsersService
-  ) {}
+  constructor(private renderer: Renderer2) {}
 
   ngOnInit() {
-    this.setupData();
     this.setupTable();
     this.setDisplayedColumns();
   }
@@ -71,16 +66,24 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setTableResize(this.matTableRef.nativeElement.clientWidth);
   }
 
-  ngOnDestroy() {
-    this.destroy$.next(true);
-    this.destroy$.unsubscribe();
-    this.saveColumns();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.columns) {
+      this.columns = changes.columns.currentValue;
+      this.setDisplayedColumns();
+      if (this.matTableRef) {
+        this.setTableResize(this.matTableRef.nativeElement.clientWidth);
+      }
+    }
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    this.setTableResize(this.matTableRef.nativeElement.clientWidth);
+  // applyFilter(event: Event) {
+  //   const filterValue = (event.target as HTMLInputElement).value;
+  //   this.dataSource.filter = filterValue.trim().toLowerCase();
+  //   this.setTableResize(this.matTableRef.nativeElement.clientWidth);
+  // }
+
+  getCopy(array) {
+    return JSON.parse(JSON.stringify(array));
   }
 
   dragStarted(event: CdkDragStart, index: number) {
@@ -89,49 +92,40 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
 
   dropListDropped(event: CdkDropList, index: number) {
     if (event) {
-      moveItemInArray(this.columns, this.previousIndex, index);
-      this.setDisplayedColumns();
-      this.setTableResize(this.matTableRef.nativeElement.clientWidth);
-      location.reload();
+      let tmpColumns = this.getCopy(this.columns);
+      moveItemInArray(tmpColumns, this.previousIndex, index);
+      this.saveColumns(tmpColumns);
     }
   }
 
   setDisplayedColumns() {
-    this.columns.forEach((column, index) => {
+    let tmpColumns = this.getCopy(this.columns);
+
+    tmpColumns.forEach((column, index) => {
       column.index = index;
       this.displayedColumns[index] = column.field;
     });
   }
 
-  setupData() {
-    this.usersService
-      .get()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => {
-        this.users = data;
-      });
-  }
-
   setupTable() {
     this.dataSource = new MatTableDataSource(this.users);
-    this.columns = this.columnService.getColumnsList();
-    this.sortData = this.sortService.getSortData();
-    this.sort.active = this.sortData.active;
-    this.sort.direction = this.sortData.direction;
+    this.sort.active = this.sortData[0].active;
+    this.sort.direction = this.sortData[0].direction;
     this.dataSource.sort = this.sort;
   }
 
   setTableResize(tableWidth: number) {
+    let tmpColumns = this.getCopy(this.columns);
     let totWidth = 0;
-    this.columns.forEach((column) => {
+
+    tmpColumns.forEach((column) => {
       totWidth += column.width;
     });
     const scale = (tableWidth - 5) / totWidth;
-    this.columns.forEach((column) => {
+    tmpColumns.forEach((column) => {
       column.width *= scale;
       this.setColumnWidth(column);
     });
-    this.saveColumns();
   }
 
   onResizeColumn(event: any, index: number) {
@@ -193,16 +187,18 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setColumnWidthChanges(index: number, width: number) {
+    let tmpColumns = this.getCopy(this.columns);
+
     const orgWidth = this.columns[index].width;
     const dx = width - orgWidth;
     if (dx !== 0) {
       const j = this.isResizingRight ? index + 1 : index - 1;
       const newWidth = this.columns[j].width - dx;
       if (newWidth > 50) {
-        this.columns[index].width = width;
-        this.setColumnWidth(this.columns[index]);
-        this.columns[j].width = newWidth;
-        this.setColumnWidth(this.columns[j]);
+        tmpColumns[index].width = width;
+        this.setColumnWidth(tmpColumns[index]);
+        tmpColumns[j].width = newWidth;
+        this.setColumnWidth(tmpColumns[j]);
       }
     }
   }
@@ -216,13 +212,13 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  saveColumns(): void {
-    this.columns = this.columnService.saveColumns(this.columns);
+  saveColumns(columns): void {
+    this.columnChange.emit(columns);
   }
 
   saveSortData(event): void {
-    let sortData = { active: event.active, direction: event.direction };
-    this.sortData = this.sortService.saveSortData(sortData);
+    let sortData = [{ active: event.active, direction: event.direction }];
+    this.sortChange.emit(sortData);
   }
 
   @HostListener('window:resize', ['$event'])

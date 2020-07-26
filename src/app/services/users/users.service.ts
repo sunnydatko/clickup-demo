@@ -1,95 +1,29 @@
 import { Injectable } from '@angular/core';
-import { of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Store } from '@ngrx/store';
 
-import { User } from '../../interfaces/user.interface';
+import * as DataActions from '../../store/actions/users.actions';
+import { AppState, getAllUsers, getUsersState } from '../../store/reducers';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsersService {
-  users: User[] = [
-    {
-      name: 'Conor McGregor',
-      city: 'San Diego',
-      state: 'CA',
-      title: 'Sales Consultant',
-    },
-    {
-      name: 'Tony Ferguson',
-      city: 'Denver',
-      state: 'CO',
-      title: 'CEO',
-    },
-    {
-      name: 'Max Holloway',
-      city: 'Los Angeles',
-      state: 'CA',
-      title: 'Graphic Artist',
-    },
-    {
-      name: 'Jonathan Jones',
-      city: 'Sacramento',
-      state: 'CA',
-      title: 'Marketing Manager',
-    },
-    {
-      name: 'Daniel Cormier',
-      city: 'Boise',
-      state: 'ID',
-      title: 'Sales Director',
-    },
-    {
-      name: 'Brock Lesnar',
-      city: 'Seattle',
-      state: 'WA',
-      title: 'Sales Consultant',
-    },
-    {
-      name: 'Cynthia Llamar',
-      city: 'Portland',
-      state: 'OR',
-      title: 'Marketing Director',
-    },
-    {
-      name: 'Alex Green',
-      city: 'New York',
-      state: 'NY',
-      title: 'Consultant',
-    },
-    {
-      name: 'Pamela Scott',
-      city: 'San Diego',
-      state: 'CA',
-      title: 'Marketing Coordinator',
-    },
-    {
-      name: 'Ashley Partridge',
-      city: 'San Diego',
-      state: 'CA',
-      title: 'Designer',
-    },
-    {
-      name: 'Eva Roberts',
-      city: 'Phoenix',
-      state: 'AZ',
-      title: 'Office Manager',
-    },
-    {
-      name: 'Juan Rodriguez',
-      city: 'Phoenix',
-      state: 'AZ',
-      title: 'Designer',
-    },
-    {
-      name: 'Jordan Robinson',
-      city: 'San Fransisco',
-      state: 'CA',
-      title: 'UX Engineer',
-    },
-  ];
-  constructor() {}
+  constructor(private store: Store<AppState>, private http: HttpClient) {}
 
-  get() {
-    return of(this.users);
+  loadData() {
+    return this.http.get('/assets/users.json');
+  }
+
+  load() {
+    this.store.dispatch(new DataActions.LoadUsersBegin());
+  }
+
+  getData() {
+    return this.store.select(getUsersState);
+  }
+
+  getUsers() {
+    return this.store.select(getAllUsers);
   }
 }

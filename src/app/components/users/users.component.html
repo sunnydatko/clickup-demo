@@ -1,0 +1,19 @@
+<mat-form-field>
+  <input
+    matInput
+    (keyup)="applyFilter($event)"
+    placeholder="Search"
+    #input
+    floatLabel="always"
+  />
+</mat-form-field>
+
+<div *ngIf="users.length && sortData.length">
+  <app-users-table
+    [users]="users"
+    [columns]="columns"
+    [sortData]="sortData"
+    (sortChange)="onSortChange($event)"
+    (columnChange)="onColumnChange($event)"
+  ></app-users-table>
+</div>

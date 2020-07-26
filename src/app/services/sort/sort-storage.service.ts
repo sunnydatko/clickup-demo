@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { SortData } from '../../interfaces/sort.interface';
 
-const storageName = 'sort';
+const storageName = 'sortData';
 
-const defaultSort = { active: null, direction: null };
+const defaultSort = [{ active: null, direction: null }];
 
 @Injectable()
 export class SortStorageService {
-  private sort: SortData;
+  private sort: SortData[];
 
   constructor() {
     this.sort = JSON.parse(localStorage.getItem(storageName)) || defaultSort;
