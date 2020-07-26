@@ -201,6 +201,8 @@ export class UsersTableComponent implements OnInit, AfterViewInit, OnChanges {
         this.setColumnWidth(tmpColumns[j]);
       }
     }
+
+    this.saveColumns(tmpColumns);
   }
 
   setColumnWidth(column: any) {
