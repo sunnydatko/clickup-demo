@@ -1,3 +1,13 @@
+<mat-form-field>
+  <input
+    matInput
+    (keyup)="applyFilter($event)"
+    placeholder="Search"
+    #input
+    floatLabel="always"
+  />
+</mat-form-field>
+
 <mat-table
   [dataSource]="dataSource"
   cdkDropListGroup

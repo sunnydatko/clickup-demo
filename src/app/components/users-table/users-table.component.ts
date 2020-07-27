@@ -76,11 +76,11 @@ export class UsersTableComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  // applyFilter(event: Event) {
-  //   const filterValue = (event.target as HTMLInputElement).value;
-  //   this.dataSource.filter = filterValue.trim().toLowerCase();
-  //   this.setTableResize(this.matTableRef.nativeElement.clientWidth);
-  // }
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.setTableResize(this.matTableRef.nativeElement.clientWidth);
+  }
 
   getCopy(array) {
     return JSON.parse(JSON.stringify(array));

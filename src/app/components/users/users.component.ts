@@ -18,7 +18,7 @@ import * as SortActions from '../../store/actions/sort.actions';
 })
 export class UsersComponent implements OnInit, OnDestroy {
   columns: Column[];
-  sortData: SortData[] = [{ active: null, direction: null }];
+  sortData: SortData[];
   users: User[];
 
   columnState$: Observable<User[]>;
@@ -54,12 +54,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.columnSubscription.unsubscribe();
     this.sortSubscription.unsubscribe();
     this.userSubscription.unsubscribe();
-  }
-
-  applyFilter(event: Event) {
-    // const filterValue = (event.target as HTMLInputElement).value;
-    // this.dataSource.filter = filterValue.trim().toLowerCase();
-    // this.setTableResize(this.matTableRef.nativeElement.clientWidth);
   }
 
   onColumnChange(event) {
